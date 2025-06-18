@@ -5,8 +5,9 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+
+import '../widgets/custom_banner_ad.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,12 +18,12 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
-  Future<String> _saveScreenshot(Uint8List bytes) async {
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/feedback.png');
-    await file.writeAsBytes(bytes);
-    return file.path;
-  }
+  // Future<String> _saveScreenshot(Uint8List bytes) async {
+  //   final dir = await getTemporaryDirectory(); // path_provider package
+  //   final file = File('${dir.path}/feedback.png');
+  //   await file.writeAsBytes(bytes);
+  //   return file.path;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +41,18 @@ class DashboardScreen extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: Column(
           children: [
+            const Text(
+              'Version: 1.0.1',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                letterSpacing: 1.5,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.only(left: 10, right: 10, top: 10),

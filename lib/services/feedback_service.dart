@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class FeedbackService {
   static Widget builder(
-      BuildContext context,
-      Future<void> Function(String, {Map<String, dynamic>? extras}) onSubmit,
-      ScrollController? scrollController,
-      ) {
+    BuildContext context,
+    Future<void> Function(String, {Map<String, dynamic>? extras}) onSubmit,
+    ScrollController? scrollController,
+  ) {
     final TextEditingController controller = TextEditingController();
     return Padding(
       padding: const EdgeInsets.all(20),

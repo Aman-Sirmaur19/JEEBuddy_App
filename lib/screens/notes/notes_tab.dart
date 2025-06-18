@@ -52,16 +52,18 @@ class NotesTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
       children: [
-        _buildSection('Physics', sectionsBySubject['Physics'] ?? {}),
+        _buildSection('Physics', sectionsBySubject['Physics'] ?? {}, provider),
         const SizedBox(height: 30),
-        _buildSection('Chemistry', sectionsBySubject['Chemistry'] ?? {}),
+        _buildSection(
+            'Chemistry', sectionsBySubject['Chemistry'] ?? {}, provider),
         const SizedBox(height: 30),
-        _buildSection('Maths', sectionsBySubject['Maths'] ?? {}),
+        _buildSection('Maths', sectionsBySubject['Maths'] ?? {}, provider),
       ],
     );
   }
 
-  Widget _buildSection(String subject, Set<String> authors) {
+  Widget _buildSection(
+      String subject, Set<String> authors, SheetDataProvider provider) {
     final filteredAuthors = authors.where((e) => e.isNotEmpty).toList();
 
     return Column(
@@ -69,7 +71,8 @@ class NotesTab extends StatelessWidget {
       children: [
         Text(subject, style: const TextStyle(fontSize: 18)),
         const SizedBox(height: 10),
-        CustomGridView(label: 'Notes', items: filteredAuthors),
+        CustomGridView(
+            label: 'Notes', items: filteredAuthors, provider: provider),
       ],
     );
   }

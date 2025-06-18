@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/sheet_data_provider.dart';
+import '../../services/ad_manager.dart';
+import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/search_text_field.dart';
+import '../../providers/sheet_data_provider.dart';
 import 'pdf_viewer_screen.dart';
 
 class PdfsScreen extends StatefulWidget {
@@ -83,15 +85,12 @@ class _PdfsScreenState extends State<PdfsScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: ListTile(
-                      onTap: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => PdfViewerScreen(
+                      onTap: () => AdManager().navigateWithAd(
+                          context,
+                          PdfViewerScreen(
                             pdfName: pdfName,
                             pdfUrl: pdfUrl,
-                          ),
-                        ),
-                      ),
+                          )),
                       tileColor: Theme.of(context).colorScheme.primaryContainer,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
@@ -121,6 +120,7 @@ class _PdfsScreenState extends State<PdfsScreen> {
           ),
           title: Text(widget.title),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: bodyContent,
       ),
     );

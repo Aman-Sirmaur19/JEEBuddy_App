@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/ad_manager.dart';
+import '../../widgets/custom_banner_ad.dart';
 import '../../providers/sheet_data_provider.dart';
 import 'question_solution_tab.dart';
 
@@ -58,6 +60,7 @@ class ShiftsScreen extends StatelessWidget {
             icon: const Icon(CupertinoIcons.chevron_back),
           ),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           itemCount: sortedShifts.length,
@@ -66,16 +69,13 @@ class ShiftsScreen extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: ListTile(
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => QuestionSolutionTab(
+                onTap: () => AdManager().navigateWithAd(
+                    context,
+                    QuestionSolutionTab(
                       examLabel: examLabel,
                       year: year,
                       label: shift,
-                    ),
-                  ),
-                ),
+                    )),
                 tileColor: Theme.of(context).colorScheme.primaryContainer,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),

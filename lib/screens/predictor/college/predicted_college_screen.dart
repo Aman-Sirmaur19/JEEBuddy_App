@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/college_data.dart';
+import '../../../widgets/custom_banner_ad.dart';
 import '../../../widgets/custom_popup_selector.dart';
 
 class PredictedCollegeScreen extends StatefulWidget {
@@ -185,6 +186,7 @@ class _PredictedCollegeScreenState extends State<PredictedCollegeScreen> {
             )
           ],
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: _filteredColleges.isEmpty
             ? const Center(child: Text('No colleges found'))
             : ListView.builder(

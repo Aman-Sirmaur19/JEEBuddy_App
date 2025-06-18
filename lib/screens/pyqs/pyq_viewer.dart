@@ -124,33 +124,33 @@ class _PYQViewerState extends State<PYQViewer> {
             }
             final path = snapshot.data!;
             return PDF(
-                    enableSwipe: true,
-                    swipeHorizontal: true,
-                    onViewCreated: (controller) {
-                      _pdfViewController = controller;
-                    },
-                    onPageChanged: (currentPage, totalPages) {
-                      setState(() {
-                        _totalPages = totalPages;
-                      });
-                    },
-                  ).cachedFromUrl(
-                    path,
-                    placeholder: (progress) => Center(
-                        child: Text(
-                      '$progress %\nLoading',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    )),
-                    errorWidget: (error) => InternetConnectivityButton(
-                      onPressed: () => setState(() {
-                        _pdfPathFuture = _initialisePdf();
-                      }),
-                    ),
-                  );
+              enableSwipe: true,
+              swipeHorizontal: true,
+              onViewCreated: (controller) {
+                _pdfViewController = controller;
+              },
+              onPageChanged: (currentPage, totalPages) {
+                setState(() {
+                  _totalPages = totalPages;
+                });
+              },
+            ).cachedFromUrl(
+              path,
+              placeholder: (progress) => Center(
+                  child: Text(
+                '$progress %\nLoading',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              )),
+              errorWidget: (error) => InternetConnectivityButton(
+                onPressed: () => setState(() {
+                  _pdfPathFuture = _initialisePdf();
+                }),
+              ),
+            );
           },
         ),
       ),

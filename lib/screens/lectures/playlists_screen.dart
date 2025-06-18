@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/sheet_data_provider.dart';
+import '../../services/ad_manager.dart';
+import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/search_text_field.dart';
+import '../../providers/sheet_data_provider.dart';
 import 'youtube_player_screen.dart';
 
 class PlaylistsScreen extends StatefulWidget {
@@ -61,15 +63,12 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
             return Padding(
               padding: const EdgeInsets.only(top: 10),
               child: ListTile(
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => YoutubePlayerScreen(
+                onTap: () => AdManager().navigateWithAd(
+                    context,
+                    YoutubePlayerScreen(
                       title: playlistName,
                       playlistLink: playlistUrl,
-                    ),
-                  ),
-                ),
+                    )),
                 tileColor: Theme.of(context).colorScheme.primaryContainer,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
@@ -96,6 +95,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
           ),
           title: Text(widget.title),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: Column(
           children: [
             SearchTextField(

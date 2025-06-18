@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 
+import '../secrets.dart';
+
 class SheetDataProvider with ChangeNotifier {
   List<List<dynamic>> _data = [];
   bool _isLoaded = false;
@@ -16,9 +18,6 @@ class SheetDataProvider with ChangeNotifier {
 
   String? get error => _error;
 
-  static const String csvUrl =
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vQN9DwnvdtZAFTnj1MnxjBaWElgMlKCdKZpQz4Mgive8CETibnWJoNPBaMqFMmWIfyMfM-2udrXV7SW/pub?output=csv';
-
   Future<void> loadData() async {
     if (_isLoaded) return;
 
@@ -27,7 +26,7 @@ class SheetDataProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse(csvUrl));
+      final response = await http.get(Uri.parse(Secrets.csvUrl));
       if (response.statusCode == 200) {
         _data = const CsvToListConverter(eol: '\n').convert(response.body);
         _isLoaded = true;
@@ -48,7 +47,7 @@ class SheetDataProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse(csvUrl));
+      final response = await http.get(Uri.parse(Secrets.csvUrl));
       if (response.statusCode == 200) {
         _data = const CsvToListConverter(eol: '\n').convert(response.body);
         _isLoaded = true;

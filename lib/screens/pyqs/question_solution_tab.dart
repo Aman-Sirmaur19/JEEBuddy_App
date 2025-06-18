@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/custom_banner_ad.dart';
 import '../../providers/sheet_data_provider.dart';
 import 'pyq_viewer.dart';
 
@@ -71,6 +72,7 @@ class _QuestionSolutionTabState extends State<QuestionSolutionTab>
     if (questionPaperUrl == null && solutionUrl == null) {
       return Scaffold(
         appBar: AppBar(title: Text('${widget.label} - ${widget.year}')),
+        bottomNavigationBar: const CustomBannerAd(),
         body: const Center(child: Text('No data available')),
       );
     }
@@ -88,6 +90,7 @@ class _QuestionSolutionTabState extends State<QuestionSolutionTab>
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         body: Column(
           children: [
             Container(

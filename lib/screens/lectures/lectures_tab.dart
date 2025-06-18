@@ -51,22 +51,26 @@ class LecturesTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
       children: [
-        _buildSection('Lectures', sectionsBySubject['Lectures'] ?? {}),
+        _buildSection(
+            'Lectures', sectionsBySubject['Lectures'] ?? {}, provider),
         const SizedBox(height: 30),
-        _buildSection('One Shots', sectionsBySubject['One Shots'] ?? {}),
+        _buildSection(
+            'One Shots', sectionsBySubject['One Shots'] ?? {}, provider),
       ],
     );
   }
 
-  Widget _buildSection(String subject, Set<String> authors) {
+  Widget _buildSection(
+      String title, Set<String> authors, SheetDataProvider provider) {
     final filteredAuthors = authors.where((e) => e.isNotEmpty).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(subject, style: const TextStyle(fontSize: 18)),
+        Text(title, style: const TextStyle(fontSize: 18)),
         const SizedBox(height: 10),
-        CustomGridView(label: 'Lectures', items: filteredAuthors),
+        CustomGridView(
+            label: title, items: filteredAuthors, provider: provider),
       ],
     );
   }

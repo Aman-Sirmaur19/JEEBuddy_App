@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
+import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/internet_connectivity_button.dart';
 
 class YoutubePlayerScreen extends StatefulWidget {
@@ -170,7 +171,7 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
                   ),
                 ],
               ),
-        // bottomNavigationBar: isFullscreen ? null : const CustomBannerAd(),
+        bottomNavigationBar: isFullscreen ? null : const CustomBannerAd(),
         body: isLoading
             ? const Center(
                 child: CircularProgressIndicator(color: Colors.orange))

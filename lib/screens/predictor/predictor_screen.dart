@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/percentile_rank_range.dart';
+import '../../services/ad_manager.dart';
+import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../models/percentile_rank_range.dart';
 import 'college/college_predictor_screen.dart';
 
 class PredictorScreen extends StatelessWidget {
@@ -34,8 +35,8 @@ class PredictorScreen extends StatelessWidget {
                   children: [
                     Text(
                       title == 'Percentile'
-                          ? '$title --> Rank'
-                          : '$title --> Percentile',
+                          ? '$title  ~~>  Rank'
+                          : '$title  ~~>  Percentile',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -126,71 +127,65 @@ class PredictorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-      children: [
-        const Text(
-          'Percentile / Rank Predictor',
-          style: TextStyle(fontSize: 18),
-        ),
-        const SizedBox(height: 10),
-        _customListTile(
-          context: context,
-          onTap: () => _showPredictionSheet(context, 'Percentile'),
-          title: 'JEE Mains',
-          subtitle: 'Percentile --> Rank',
-          icon: Icons.insights_rounded,
-        ),
-        const SizedBox(height: 10),
-        _customListTile(
-          context: context,
-          onTap: () => _showPredictionSheet(context, 'Rank'),
-          title: 'JEE Mains',
-          subtitle: 'Rank --> Percentile',
-          icon: Icons.percent_rounded,
-        ),
-        const SizedBox(height: 30),
-        const Text(
-          'College Predictor',
-          style: TextStyle(fontSize: 18),
-        ),
-        const SizedBox(height: 10),
-        _customListTile(
-          context: context,
-          onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                  builder: (context) =>
-                      const CollegePredictorScreen(exam: 'B.Tech'))),
-          title: 'JEE Mains - B.Tech',
-          subtitle: 'NITs, IIITs & GFTIs',
-          icon: Icons.school_outlined,
-        ),
-        const SizedBox(height: 10),
-        _customListTile(
-          context: context,
-          onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                  builder: (context) =>
-                      const CollegePredictorScreen(exam: 'B.Arch'))),
-          title: 'JEE Mains - B.Arch',
-          subtitle: 'NITs & GFTIs',
-          icon: Icons.school_outlined,
-        ),
-        const SizedBox(height: 10),
-        _customListTile(
-          context: context,
-          onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                  builder: (context) =>
-                      const CollegePredictorScreen(exam: 'Advanced'))),
-          title: 'JEE Advanced',
-          subtitle: 'IITs',
-          icon: Icons.school_outlined,
-        ),
-      ],
+    return Scaffold(
+      bottomNavigationBar: const CustomBannerAd(),
+      body: ListView(
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+        children: [
+          const Text(
+            'Percentile / Rank Predictor',
+            style: TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 10),
+          _customListTile(
+            context: context,
+            onTap: () => _showPredictionSheet(context, 'Percentile'),
+            title: 'JEE Mains',
+            subtitle: 'Percentile  ~~>  Rank',
+            icon: Icons.insights_rounded,
+          ),
+          const SizedBox(height: 10),
+          _customListTile(
+            context: context,
+            onTap: () => _showPredictionSheet(context, 'Rank'),
+            title: 'JEE Mains',
+            subtitle: 'Rank  ~~>  Percentile',
+            icon: Icons.percent_rounded,
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            'College Predictor',
+            style: TextStyle(fontSize: 18),
+          ),
+          const SizedBox(height: 10),
+          _customListTile(
+            context: context,
+            onTap: () => AdManager().navigateWithAd(
+                context, const CollegePredictorScreen(exam: 'B.Tech')),
+            title: 'JEE Mains - B.Tech',
+            subtitle: 'NITs, IIITs & GFTIs',
+            icon: Icons.school_outlined,
+          ),
+          const SizedBox(height: 10),
+          _customListTile(
+            context: context,
+            onTap: () => AdManager().navigateWithAd(
+                context, const CollegePredictorScreen(exam: 'B.Arch')),
+            title: 'JEE Mains - B.Arch',
+            subtitle: 'NITs & GFTIs',
+            icon: Icons.school_outlined,
+          ),
+          const SizedBox(height: 10),
+          _customListTile(
+            context: context,
+            onTap: () => AdManager().navigateWithAd(
+                context, const CollegePredictorScreen(exam: 'Advanced')),
+            title: 'JEE Advanced',
+            subtitle: 'IITs',
+            icon: Icons.school_outlined,
+          ),
+        ],
+      ),
     );
   }
 

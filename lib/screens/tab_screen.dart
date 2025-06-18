@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:in_app_update/in_app_update.dart';
 import 'package:provider/provider.dart';
+import 'package:in_app_update/in_app_update.dart';
 
+import '../services/ad_manager.dart';
 import '../providers/sheet_data_provider.dart';
 import '../providers/college_data_provider.dart';
 import 'dashboard_screen.dart';
@@ -89,10 +90,8 @@ class _TabScreenState extends State<TabScreen> {
           )),
           actions: [
             IconButton(
-              onPressed: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => const DashboardScreen())),
+              onPressed: () =>
+                  AdManager().navigateWithAd(context, const DashboardScreen()),
               tooltip: 'Dashboard',
               icon: const Icon(CupertinoIcons.square_grid_2x2),
             ),

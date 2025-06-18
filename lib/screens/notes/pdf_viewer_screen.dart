@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
+import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/internet_connectivity_button.dart';
 
@@ -117,6 +118,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        bottomNavigationBar: const CustomBannerAd(),
         floatingActionButton: FloatingActionButton(
           onPressed: _goToPageDialog,
           tooltip: 'Go to Page',

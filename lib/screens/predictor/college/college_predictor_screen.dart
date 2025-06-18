@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../services/ad_manager.dart';
+import '../../../widgets/custom_banner_ad.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_popup_selector.dart';
 import '../../../providers/college_data_provider.dart';
@@ -53,12 +55,23 @@ class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
             ),
             title: const Text('College Predictor'),
           ),
+          bottomNavigationBar: const CustomBannerAd(),
           body: Padding(
-            padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               children: [
+                const Text(
+                  '[Currently, data used for prediction is of 2024]',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    letterSpacing: .75,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 Expanded(
                   child: ListView(
+                    padding: const EdgeInsets.only(top: 10),
                     children: [
                       if (widget.exam != 'Advanced') ...[
                         CustomPopupSelector(
@@ -162,11 +175,10 @@ class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
                         branch: _branch,
                         rank: int.tryParse(_rankController.text.trim()),
                       );
-                      Navigator.push(
+                      AdManager().navigateWithAd(
                           context,
-                          CupertinoPageRoute(
-                              builder: (context) => PredictedCollegeScreen(
-                                  predictedColleges: predictedList)));
+                          PredictedCollegeScreen(
+                              predictedColleges: predictedList));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
