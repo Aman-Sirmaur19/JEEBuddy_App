@@ -1,34 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/college_data.dart';
 
 class CollegeDataProvider with ChangeNotifier {
-  List<CollegeData> _allData = [];
+  final Map<String, List<CollegeData>> _dataByYear = {};
 
-  List<CollegeData> get allData => _allData;
+  List<CollegeData> getData(String year) => _dataByYear[year] ?? [];
 
   Future<void> loadAllCsv() async {
     try {
-      final rawCsv = await rootBundle.loadString('assets/data/2024.csv');
-      final rows = const CsvToListConverter().convert(rawCsv, eol: '\n');
+      final csvFiles = {
+        '2024': 'assets/data/2024.csv',
+        '2025': 'assets/data/2025.csv',
+      };
 
-      if (rows.length <= 1) return;
+      for (final entry in csvFiles.entries) {
+        final rawCsv = await rootBundle.loadString(entry.value);
+        final rows = const CsvToListConverter().convert(rawCsv, eol: '\n');
 
-      final dataRows =
-          rows.skip(1).map((row) => CollegeData.fromCsvRow(row)).toList();
+        if (rows.length <= 1) continue;
 
-      _allData = dataRows;
+        final dataRows =
+            rows.skip(1).map((row) => CollegeData.fromCsvRow(row)).toList();
+
+        _dataByYear[entry.key] = dataRows;
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('CSV load error: $e');
     }
   }
 
-  /// Filter based on exam type
-  List<CollegeData> getFilteredData(String exam) {
-    return _allData.where((row) {
+  /// Filter based on exam type + year
+  List<CollegeData> getFilteredData(String exam, String year) {
+    final data = getData(year);
+
+    return data.where((row) {
       final isIIT = row.institute.startsWith('Indian Institute of Technology');
       final isArchitecture = row.program.toLowerCase().contains('architecture');
 
@@ -38,34 +48,39 @@ class CollegeDataProvider with ChangeNotifier {
     }).toList();
   }
 
-  List<String> _unique(String Function(CollegeData) keySelector, String exam) {
-    final data = getFilteredData(exam);
+  List<String> _unique(
+      String Function(CollegeData) keySelector, String exam, String year) {
+    final data = getFilteredData(exam, year);
     return data.map(keySelector).toSet().toList()..sort();
   }
 
-  List<String> getRounds(String exam) =>
-      ['Choose Round', ..._unique((e) => e.round, exam)];
+  List<String> getRounds(String exam, String year) =>
+      ['Choose Round', ..._unique((e) => e.round, exam, year)];
 
-  List<String> getStates(String exam) {
-    final rawQuotas = _unique((e) => e.quota, exam);
-    final stateQuotas = rawQuotas.where((q) => q != 'AI' && q != 'OS').toList();
+  List<String> getStates(String exam, String year) {
+    final rawQuotas = _unique((e) => e.quota, exam, year);
+    final stateQuotas = rawQuotas
+        .where((q) =>
+            q != 'AI' && q != 'OS' && q != 'All India' && q != 'Other State')
+        .toList();
     return ['Choose Home State', ...stateQuotas];
   }
 
-  List<String> getGenders(String exam) =>
-      ['Choose Gender', ..._unique((e) => e.gender, exam)];
+  List<String> getGenders(String exam, String year) =>
+      ['Choose Gender', ..._unique((e) => e.gender, exam, year)];
 
-  List<String> getCategories(String exam) =>
-      ['Choose Category', ..._unique((e) => e.seatType, exam)];
+  List<String> getCategories(String exam, String year) =>
+      ['Choose Category', ..._unique((e) => e.seatType, exam, year)];
 
-  List<String> getBranches(String exam) =>
-      ['Choose Branch', ..._unique((e) => e.program, exam)];
+  List<String> getBranches(String exam, String year) =>
+      ['Choose Branch', ..._unique((e) => e.program, exam, year)];
 
-  List<String> getColleges(String exam) =>
-      ['Choose College', ..._unique((e) => e.institute, exam)];
+  List<String> getColleges(String exam, String year) =>
+      ['Choose College', ..._unique((e) => e.institute, exam, year)];
 
   List<CollegeData> filterBy({
     required String exam,
+    required String year,
     String? round,
     String? homeState,
     String? gender,
@@ -73,11 +88,14 @@ class CollegeDataProvider with ChangeNotifier {
     String? branch,
     int? rank,
   }) {
-    final data = getFilteredData(exam);
+    final data = getFilteredData(exam, year);
 
     final filtered = data.where((entry) {
       final isHomeStateCollege = entry.quota == homeState;
-      final isOtherStateQuota = entry.quota == 'AI' || entry.quota == 'OS';
+      final isOtherStateQuota = entry.quota == 'AI' ||
+          entry.quota == 'OS' ||
+          entry.quota == 'All India' ||
+          entry.quota == 'Other State';
 
       final applyRankFilter = rank == null ||
           ((homeState == null || homeState == 'Choose Home State') &&

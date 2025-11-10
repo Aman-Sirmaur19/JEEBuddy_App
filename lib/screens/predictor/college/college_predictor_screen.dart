@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../services/ad_manager.dart';
+import '../../../utils/dialogs.dart';
 import '../../../widgets/custom_banner_ad.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_popup_selector.dart';
@@ -20,6 +21,7 @@ class CollegePredictorScreen extends StatefulWidget {
 
 class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
   final TextEditingController _rankController = TextEditingController();
+  String _selectedYear = '2025';
   String _round = 'Choose Round';
   String _quota = 'Choose Home State';
   String _category = 'Choose Category';
@@ -37,12 +39,12 @@ class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
   Widget build(BuildContext context) {
     final dataProvider = Provider.of<CollegeDataProvider>(context);
     final exam = widget.exam; // "Advanced", "B.Tech", "B.Arch"
-    final rounds = dataProvider.getRounds(exam);
-    final quotas = dataProvider.getStates(exam);
-    final genders = dataProvider.getGenders(exam);
-    final categories = dataProvider.getCategories(exam);
-    final branches = dataProvider.getBranches(exam);
-    final colleges = dataProvider.getColleges(exam);
+    final rounds = dataProvider.getRounds(exam, _selectedYear);
+    final quotas = dataProvider.getStates(exam, _selectedYear);
+    final genders = dataProvider.getGenders(exam, _selectedYear);
+    final categories = dataProvider.getCategories(exam, _selectedYear);
+    final branches = dataProvider.getBranches(exam, _selectedYear);
+    final colleges = dataProvider.getColleges(exam, _selectedYear);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
@@ -53,26 +55,31 @@ class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
               tooltip: 'Back',
               icon: const Icon(CupertinoIcons.chevron_back),
             ),
-            title: const Text('College Predictor'),
+            title: Text(widget.exam == 'Advanced'
+                ? 'JEE ${widget.exam}'
+                : 'JEE Mains - ${widget.exam}'),
           ),
           bottomNavigationBar: const CustomBannerAd(),
           body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.only(left: 12, right: 12, top: 10),
             child: Column(
               children: [
-                const Text(
-                  '[Currently, data used for prediction is of 2024]',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    letterSpacing: .75,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                const CustomBannerAd(),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.only(top: 10),
                     children: [
+                      CustomPopupSelector(
+                        title: 'Choose year',
+                        selectedValue: _selectedYear,
+                        options: const ['2025', '2024'],
+                        onSelected: (value) {
+                          setState(() {
+                            _selectedYear = value;
+                            _round = 'Choose Round';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       if (widget.exam != 'Advanced') ...[
                         CustomPopupSelector(
                           title: 'Choose Home State',
@@ -166,8 +173,30 @@ class _CollegePredictorScreenState extends State<CollegePredictorScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
+                      if (_quota == 'Choose Home State') {
+                        Dialogs.showErrorSnackBar(context, _quota);
+                        return;
+                      }
+                      if (_round == 'Choose Round') {
+                        Dialogs.showErrorSnackBar(context, _round);
+                        return;
+                      }
+                      if (_category == 'Choose Category') {
+                        Dialogs.showErrorSnackBar(context, _category);
+                        return;
+                      }
+                      if (_rankController.text.trim().isEmpty) {
+                        Dialogs.showErrorSnackBar(context,
+                            'Enter your ${_round.contains('CSAB') ? 'All India' : 'Category'} Rank');
+                        return;
+                      }
+                      if (_gender == 'Choose Gender') {
+                        Dialogs.showErrorSnackBar(context, _gender);
+                        return;
+                      }
                       final predictedList = dataProvider.filterBy(
                         exam: widget.exam,
+                        year: _selectedYear,
                         round: _round,
                         homeState: _quota,
                         gender: _gender,

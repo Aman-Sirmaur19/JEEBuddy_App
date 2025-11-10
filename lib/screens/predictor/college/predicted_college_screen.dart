@@ -16,7 +16,7 @@ class PredictedCollegeScreen extends StatefulWidget {
 
 class _PredictedCollegeScreenState extends State<PredictedCollegeScreen> {
   final List<String> _selectedCollegeTypes = []; // ['IIT', 'NIT', etc.]
-  String? _sortBy; // 'OR_ASC', 'OR_DESC', 'CR_ASC', 'CR_DESC'
+  String _sortBy = 'Closing Rank ↑'; // 'OR_ASC', 'OR_DESC', 'CR_ASC', 'CR_DESC'
 
   List<CollegeData> get _filteredColleges {
     List<CollegeData> filtered = widget.predictedColleges.where((college) {
@@ -51,9 +51,9 @@ class _PredictedCollegeScreenState extends State<PredictedCollegeScreen> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -73,92 +73,94 @@ class _PredictedCollegeScreenState extends State<PredictedCollegeScreen> {
               availableTypesWithCount[type] =
                   (availableTypesWithCount[type] ?? 0) + 1;
             }
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 16,
-                right: 16,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Text(
-                      'Filter Colleges',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('College Types',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 8,
-                    children: availableTypesWithCount.entries.map((entry) {
-                      final type = entry.key;
-                      final count = entry.value;
-                      final isSelected = _selectedCollegeTypes.contains(type);
-                      return FilterChip(
-                        label: Text('$type ($count)'),
-                        selected: isSelected,
-                        showCheckmark: false,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                              color: isSelected ? Colors.orange : Colors.grey),
-                        ),
-                        selectedColor: Colors.orange,
-                        onSelected: (selected) {
-                          setSheetState(() {
-                            isSelected
-                                ? _selectedCollegeTypes.remove(type)
-                                : _selectedCollegeTypes.add(type);
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Sort By',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  CustomPopupSelector(
-                    title: 'Choose Sort By',
-                    selectedValue: _sortBy ?? 'Choose Sort By',
-                    options: const [
-                      'Choose Sort By',
-                      'Opening Rank ↑',
-                      'Opening Rank ↓',
-                      'Closing Rank ↑',
-                      'Closing Rank ↓',
-                    ],
-                    onSelected: (value) {
-                      setSheetState(() {
-                        _sortBy = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {}); // Refresh UI with filters
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  left: 16,
+                  right: 16,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'Filter Colleges',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('Apply'),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                    const SizedBox(height: 16),
+                    const Text('College Types',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      children: availableTypesWithCount.entries.map((entry) {
+                        final type = entry.key;
+                        final count = entry.value;
+                        final isSelected = _selectedCollegeTypes.contains(type);
+                        return FilterChip(
+                          label: Text('$type ($count)'),
+                          selected: isSelected,
+                          showCheckmark: false,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                                color:
+                                    isSelected ? Colors.orange : Colors.grey),
+                          ),
+                          selectedColor: Colors.orange,
+                          onSelected: (selected) {
+                            setSheetState(() {
+                              isSelected
+                                  ? _selectedCollegeTypes.remove(type)
+                                  : _selectedCollegeTypes.add(type);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Sort By',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    CustomPopupSelector(
+                      title: 'Choose Sort By',
+                      selectedValue: _sortBy,
+                      options: const [
+                        'Opening Rank ↑',
+                        'Opening Rank ↓',
+                        'Closing Rank ↑',
+                        'Closing Rank ↓',
+                      ],
+                      onSelected: (value) {
+                        setSheetState(() {
+                          _sortBy = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {}); // Refresh UI with filters
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Apply'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             );
           },
@@ -233,9 +235,15 @@ class _PredictedCollegeScreenState extends State<PredictedCollegeScreen> {
                               _customText(
                                 title: 'Quota: ',
                                 value: college.quota != 'AI' &&
-                                        college.quota != 'OS'
+                                        college.quota != 'OS' &&
+                                        college.quota != 'All India' &&
+                                        college.quota != 'Other State'
                                     ? 'HS'
-                                    : college.quota,
+                                    : college.quota == 'All India'
+                                        ? 'AI'
+                                        : college.quota == 'Other State'
+                                            ? 'OS'
+                                            : college.quota,
                                 color: Colors.lightBlueAccent,
                               ),
                             ],
