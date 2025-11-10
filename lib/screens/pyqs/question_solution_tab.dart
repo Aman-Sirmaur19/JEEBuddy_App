@@ -37,17 +37,17 @@ class _QuestionSolutionTabState extends State<QuestionSolutionTab>
 
   void _loadData() {
     final provider = Provider.of<SheetDataProvider>(context, listen: false);
-    final rows = provider.data.skip(1); // Skip header
+    final rows = provider.cache['PYQs']!.skip(1); // Skip header
 
     for (var row in rows) {
-      if (row.length < 7) continue;
+      if (row.length < 6) continue;
 
-      final bottomTab = row[1]?.toString().trim() ?? '';
-      final tab = row[2]?.toString().trim() ?? '';
-      final section = row[3]?.toString().trim() ?? '';
-      final subSection = row[4]?.toString().trim() ?? '';
-      final name = row[5]?.toString().trim() ?? '';
-      final url = row[6]?.toString().trim() ?? '';
+      final bottomTab = row[0]?.toString().trim() ?? '';
+      final tab = row[1]?.toString().trim() ?? '';
+      final section = row[2]?.toString().trim() ?? '';
+      final subSection = row[3]?.toString().trim() ?? '';
+      final name = row[4]?.toString().trim() ?? '';
+      final url = row[5]?.toString().trim() ?? '';
 
       if (bottomTab == 'PYQs' &&
           tab == widget.examLabel &&
@@ -70,10 +70,12 @@ class _QuestionSolutionTabState extends State<QuestionSolutionTab>
   @override
   Widget build(BuildContext context) {
     if (questionPaperUrl == null && solutionUrl == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text('${widget.label} - ${widget.year}')),
-        bottomNavigationBar: const CustomBannerAd(),
-        body: const Center(child: Text('No data available')),
+      return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(title: Text('${widget.label} - ${widget.year}')),
+          bottomNavigationBar: const CustomBannerAd(),
+          body: const Center(child: Text('No data available')),
+        ),
       );
     }
 

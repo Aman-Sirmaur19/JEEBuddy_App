@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:feedback/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 import '../widgets/custom_banner_ad.dart';
@@ -18,12 +20,12 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
-  // Future<String> _saveScreenshot(Uint8List bytes) async {
-  //   final dir = await getTemporaryDirectory(); // path_provider package
-  //   final file = File('${dir.path}/feedback.png');
-  //   await file.writeAsBytes(bytes);
-  //   return file.path;
-  // }
+  Future<String> _saveScreenshot(Uint8List bytes) async {
+    final dir = await getTemporaryDirectory(); // path_provider package
+    final file = File('${dir.path}/feedback.png');
+    await file.writeAsBytes(bytes);
+    return file.path;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class DashboardScreen extends StatelessWidget {
         body: Column(
           children: [
             const Text(
-              'Version: 1.0.1',
+              'Version: 1.0.4',
               textAlign: TextAlign.center,
               style: TextStyle(
                 letterSpacing: 1.5,
@@ -129,32 +131,62 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   Column(
                     children: [
-                      // _customListTile(
-                      //   onTap: () {},
-                      //   icon: CupertinoIcons.gear,
-                      //   title: 'Settings',
-                      //   context: context,
-                      //   isFirst: true,
-                      // ),
-                      // _customListTile(
-                      //   onTap: () {
-                      //     BetterFeedback.of(context)
-                      //         .show((UserFeedback feedback) async {
-                      //       final path =
-                      //           await _saveScreenshot(feedback.screenshot);
-                      //       final email = Email(
-                      //         attachmentPaths: [path],
-                      //         body: feedback.text,
-                      //         subject: 'App Feedback',
-                      //         recipients: ['harryandpotter19@gmail.com'],
-                      //       );
-                      //       await FlutterEmailSender.send(email);
-                      //     });
-                      //   },
-                      //   icon: CupertinoIcons.pencil_ellipsis_rectangle,
-                      //   title: 'Suggestions / Bug reports',
-                      //   context: context,
-                      // ),
+                      _customListTile(
+                        onTap: () {
+                          BetterFeedback.of(context)
+                              .show((UserFeedback feedback) async {
+                            final path =
+                                await _saveScreenshot(feedback.screenshot);
+                            try {
+                              final email = Email(
+                                body: feedback.text,
+                                subject: 'App Feedback',
+                                recipients: ['harryandpotter19@gmail.com'],
+                                attachmentPaths: [path], // optional
+                              );
+                              await FlutterEmailSender.send(email);
+                            } catch (e) {
+                              final Uri emailLaunchUri = Uri(
+                                scheme: 'mailto',
+                                path: 'harryandpotter19@gmail.com',
+                                queryParameters: {
+                                  'subject': 'App Feedback',
+                                  'body': feedback.text,
+                                },
+                              );
+                              await launchUrl(emailLaunchUri);
+                            }
+                          });
+                        },
+                        icon: CupertinoIcons.pencil_ellipsis_rectangle,
+                        title: 'Suggestions / Bug reports',
+                        context: context,
+                        isFirst: true,
+                      ),
+                      _customListTile(
+                        onTap: () async {
+                          const String appUrl =
+                              'https://play.google.com/store/apps/details?id=com.sirmaur.jeebuddy';
+                          SharePlus.instance.share(ShareParams(
+                            title: 'Check out this awesome JEEBuddy app',
+                            uri: Uri.parse(appUrl),
+                          ));
+                        },
+                        icon: CupertinoIcons.share,
+                        title: 'Share with friends',
+                        context: context,
+                        // isFirst: true,
+                      ),
+                      _customListTile(
+                        onTap: () async {
+                          const url =
+                              'https://play.google.com/store/apps/details?id=com.sirmaur.jeebuddy';
+                          _launchInBrowser(context, Uri.parse(url));
+                        },
+                        icon: CupertinoIcons.star,
+                        title: 'Rate us 5 ⭐',
+                        context: context,
+                      ),
                       _customListTile(
                         onTap: () async {
                           const url =
@@ -163,7 +195,6 @@ class DashboardScreen extends StatelessWidget {
                         },
                         icon: CupertinoIcons.app_badge,
                         title: 'More Apps',
-                        isFirst: true,
                         context: context,
                       ),
                       _customListTile(
@@ -288,13 +319,33 @@ class DashboardScreen extends StatelessWidget {
                               );
                             }),
                         icon: Icons.copyright_rounded,
-                        title: 'Copyright',
+                        title: 'Developer',
                         context: context,
                         isLast: true,
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
+                  RichText(
+                      text: TextSpan(
+                          text: 'Explore our other apps ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Fredoka',
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          children: const [
+                        TextSpan(
+                          text: '(Sponsored)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ])),
+                  const SizedBox(height: 10),
                   _customListTile(
                     onTap: () async {
                       const url =
@@ -303,11 +354,25 @@ class DashboardScreen extends StatelessWidget {
                     },
                     tileColor: Colors.blue,
                     imageUrl:
-                        'https://play-lh.googleusercontent.com/yM6xx4rQUYU583yQxBh8uze0nipScuPbRDMMC53Z_O-iw2D-Whq7pCW3DHRZGDlXbDo=w480-h960-rw',
-                    title: 'Attendance Tracker',
-                    subtitle: 'Easily track your college attendance',
+                        'https://play-lh.googleusercontent.com/mndUutt6VGHFYUjC_z5jvQdi8EjTQOmsXtjbZ4bLWjAMp5-252JuNw5w-4A_2pHC_RI=w480-h960-rw',
+                    title: 'College Attendance Tracker',
+                    subtitle: 'Track your college attendance with ease.',
                     context: context,
                     isFirst: true,
+                  ),
+                  _customListTile(
+                    onTap: () async {
+                      const url =
+                          'https://play.google.com/store/apps/details?id=com.sirmaur.shreemad_bhagavad_geeta';
+                      _launchInBrowser(context, Uri.parse(url));
+                    },
+                    tileColor: Colors.amber,
+                    imageUrl:
+                        'https://play-lh.googleusercontent.com/L4FMm88yMoWIKhUX3U1XJTmvd8_MkoQUX4IfN61QBSq51GWpnMPvs4Dz7gpmlmXspA=w480-h960-rw',
+                    title: 'Shreemad Bhagavad Geeta',
+                    subtitle:
+                        'The Divine Song of God\nAvailable in 100+ global languages',
+                    context: context,
                     isLast: true,
                   ),
                 ],
@@ -357,9 +422,9 @@ class DashboardScreen extends StatelessWidget {
                 width: 45,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
-                    Icons.broken_image_rounded,
+                    Icons.android_rounded,
                     size: 45,
-                    color: Colors.white,
+                    color: Colors.lightGreen,
                   );
                 },
               ))
@@ -367,8 +432,8 @@ class DashboardScreen extends StatelessWidget {
       title: Text(
         title,
         style: subtitle != null
-            ? const TextStyle(
-                color: Colors.white,
+            ? TextStyle(
+                color: title.contains('Geeta') ? Colors.black : Colors.white,
                 fontWeight: FontWeight.bold,
               )
             : null,
@@ -376,7 +441,8 @@ class DashboardScreen extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(
+                  color: title.contains('Geeta') ? Colors.black : Colors.white),
             )
           : null,
       trailing: subtitle == null

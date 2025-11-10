@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../services/ad_manager.dart';
 import '../providers/sheet_data_provider.dart';
@@ -8,18 +9,19 @@ import '../screens/lectures/youtube_player_screen.dart';
 
 class CustomGridView extends StatelessWidget {
   final String label;
+  final String? subLabel;
   final List<String> items;
-  final SheetDataProvider provider;
 
   const CustomGridView({
     super.key,
     required this.label,
+    this.subLabel,
     required this.items,
-    required this.provider,
   });
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SheetDataProvider>(context);
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -35,26 +37,31 @@ class CustomGridView extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             final subSection = title;
-            if (label == 'Lectures') {
-              AdManager()
-                  .navigateWithAd(context, PlaylistsScreen(title: subSection));
-            } else if (label == 'One Shots') {
-              final oneShotRow = provider.data.skip(1).firstWhere(
-                    (row) => (row.length > 6 &&
-                        (row[3]?.toString().trim() == 'One Shots') &&
-                        (row[4]?.toString().trim() == subSection)),
+            if (subLabel == null) {
+              if (label == 'Notes') {
+                AdManager().navigateWithAd(
+                    context, PdfsScreen(sheetName: label, title: title));
+              } else {
+                AdManager().navigateWithAd(
+                    context, PlaylistsScreen(title: subSection));
+              }
+            } else if (subLabel == 'One Shots') {
+              final oneShotRow = provider.cache['Lectures']?.skip(1).firstWhere(
+                    (row) => (row.length > 5 &&
+                        row[2]?.toString().trim() == 'One Shots' &&
+                        row[3]?.toString().trim() == subSection),
                     orElse: () => [],
                   );
-              final playlistUrl =
-                  oneShotRow.length > 6 ? oneShotRow[6].toString() : '';
-              AdManager().navigateWithAd(
-                  context,
-                  YoutubePlayerScreen(
-                    title: subSection,
-                    playlistLink: playlistUrl,
-                  ));
-            } else {
-              AdManager().navigateWithAd(context, PdfsScreen(title: title));
+
+              if (oneShotRow != null && oneShotRow.isNotEmpty) {
+                final playlistUrl = oneShotRow[5].toString();
+                AdManager().navigateWithAd(
+                    context,
+                    YoutubePlayerScreen(
+                      title: subSection,
+                      playlistLink: playlistUrl,
+                    ));
+              }
             }
           },
           child: Container(

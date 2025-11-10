@@ -22,27 +22,27 @@ ThemeData lightMode = ThemeData(
     headerBackgroundColor: Colors.orange,
     headerForegroundColor: Colors.white,
     todayBorder: const BorderSide(color: Colors.orange),
-    todayForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected) ? Colors.white : Colors.black),
-    todayBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    todayForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.white : Colors.black),
+    todayBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
-    dayForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected) ? Colors.white : Colors.black),
-    dayBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    dayForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.white : Colors.black),
+    dayBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
-    yearForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected) ? Colors.white : Colors.black),
-    yearBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    yearForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected) ? Colors.white : Colors.black),
+    yearBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
   ),
   colorScheme: const ColorScheme.light(
-    background: Color(0xFFF5F5F3),
+    surface: Color(0xFFF5F5F3),
     primary: Colors.white,
     secondary: Colors.black,
     tertiary: Colors.white,
@@ -55,8 +55,8 @@ ThemeData lightMode = ThemeData(
     selectionColor: Colors.orange.withOpacity(0.4),
   ),
   iconButtonTheme: IconButtonThemeData(
-      style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all(Colors.black))),
+      style:
+          ButtonStyle(foregroundColor: WidgetStateProperty.all(Colors.black))),
   useMaterial3: true,
 );
 
@@ -82,33 +82,33 @@ ThemeData darkMode = ThemeData(
     headerBackgroundColor: Colors.orange,
     headerForegroundColor: Colors.white,
     todayBorder: const BorderSide(color: Colors.orange),
-    todayForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    todayForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.white
             : Colors.grey.shade300),
-    todayBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    todayBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
-    dayForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    dayForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.white
             : Colors.grey.shade300),
-    dayBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    dayBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
-    yearForegroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    yearForegroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.white
             : Colors.grey.shade300),
-    yearBackgroundColor: MaterialStateColor.resolveWith((states) =>
-        states.contains(MaterialState.selected)
+    yearBackgroundColor: WidgetStateColor.resolveWith((states) =>
+        states.contains(WidgetState.selected)
             ? Colors.orange
             : Colors.transparent),
   ),
   colorScheme: ColorScheme.dark(
-    background: Colors.black,
+    surface: Colors.black,
     primary: Colors.grey.shade900,
     secondary: Colors.white,
     tertiary: const Color(0xFF636366),
@@ -121,7 +121,7 @@ ThemeData darkMode = ThemeData(
     selectionColor: Colors.orange.withOpacity(0.4),
   ),
   iconButtonTheme: IconButtonThemeData(
-      style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all(Colors.white))),
+      style:
+          ButtonStyle(foregroundColor: WidgetStateProperty.all(Colors.white))),
   useMaterial3: true,
 );

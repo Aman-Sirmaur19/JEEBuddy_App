@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 import '../services/ad_manager.dart';
-import '../providers/sheet_data_provider.dart';
 import '../providers/college_data_provider.dart';
 import 'dashboard_screen.dart';
 import 'pyqs/pyqs_tab_screen.dart';
@@ -28,7 +27,6 @@ class _TabScreenState extends State<TabScreen> {
     super.initState();
     _checkForUpdate();
     Future.delayed(Duration.zero, () {
-      Provider.of<SheetDataProvider>(context, listen: false).loadData();
       Provider.of<CollegeDataProvider>(context, listen: false).loadAllCsv();
     });
     _pages = [

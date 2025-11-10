@@ -34,18 +34,13 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
     try {
       final playlistId = PlaylistId.parsePlaylistId(playlistUrl);
       final videos = await yt.playlists.getVideos(playlistId).toList();
-
       setState(() {
         playlistVideos = videos;
         isLoading = false;
       });
-
-      // Initialize the first video in the playlist
-      _controller = YoutubePlayerController.fromVideoId(
-        videoId: videos[0].id.value,
-        autoPlay: false,
-        params: const YoutubePlayerParams(showControls: true),
-      );
+      if (videos.isNotEmpty) {
+        _controller?.loadVideoById(videoId: videos[0].id.value);
+      }
     } catch (e) {
       print('Error fetching playlist videos: $e');
       setState(() {
@@ -54,53 +49,53 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
     }
   }
 
-  void _showPlaybackOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.only(top: 10),
-          height: 120,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: const Text(
-                      'Playback Speed',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    trailing: DropdownButton<double>(
-                      value: playbackRate, // Use the main state variable
-                      items: [0.25, 0.5, 1.0, 1.5, 2.0]
-                          .map((rate) => DropdownMenuItem(
-                                value: rate,
-                                child: Text(
-                                  '$rate ×',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (rate) {
-                        if (rate != null) {
-                          _controller?.setPlaybackRate(rate);
-                          setState(() {
-                            playbackRate = rate; // Update the main state
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+  // void _showPlaybackOptions() {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       return Container(
+  //         padding: const EdgeInsets.only(top: 10),
+  //         height: 120,
+  //         child: StatefulBuilder(
+  //           builder: (context, setState) {
+  //             return Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 ListTile(
+  //                   title: const Text(
+  //                     'Playback Speed',
+  //                     style: TextStyle(fontWeight: FontWeight.bold),
+  //                   ),
+  //                   trailing: DropdownButton<double>(
+  //                     value: playbackRate, // Use the main state variable
+  //                     items: [0.25, 0.5, 1.0, 1.5, 2.0]
+  //                         .map((rate) => DropdownMenuItem(
+  //                               value: rate,
+  //                               child: Text(
+  //                                 '$rate ×',
+  //                                 style: const TextStyle(
+  //                                     fontWeight: FontWeight.bold),
+  //                               ),
+  //                             ))
+  //                         .toList(),
+  //                     onChanged: (rate) {
+  //                       if (rate != null) {
+  //                         _controller?.setPlaybackRate(rate);
+  //                         setState(() {
+  //                           playbackRate = rate; // Update the main state
+  //                         });
+  //                       }
+  //                     },
+  //                   ),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   void _toggleFullscreen() {
     setState(() {
@@ -123,6 +118,12 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
   @override
   void initState() {
     super.initState();
+    _controller = YoutubePlayerController(
+      params: const YoutubePlayerParams(
+        showControls: true,
+        origin: 'https://www.youtube-nocookie.com', // The fix for Error 150
+      ),
+    );
     _fetchPlaylistVideos(
         'https://www.youtube.com/playlist?list=${widget.playlistLink.trim()}');
   }
@@ -164,11 +165,6 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
                     tooltip: 'Toggle Fullscreen',
                     icon: const Icon(Icons.fullscreen_rounded),
                   ),
-                  IconButton(
-                    onPressed: _showPlaybackOptions,
-                    tooltip: 'Video Settings',
-                    icon: const Icon(CupertinoIcons.gear),
-                  ),
                 ],
               ),
         bottomNavigationBar: isFullscreen ? null : const CustomBannerAd(),
@@ -181,8 +177,9 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
                         'https://www.youtube.com/playlist?list=${widget.playlistLink.trim()}'),
                   )
                 : Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Column(
+                      ListView(
                         children: [
                           // YoutubePlayer(
                           //   controller: _controller!,
@@ -197,43 +194,44 @@ class _YoutubePlayerScreenState extends State<YoutubePlayerScreen> {
                                 ),
                           if (!isFullscreen) ...[
                             const SizedBox(height: 10),
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: playlistVideos.length,
-                                itemBuilder: (context, index) {
-                                  final video = playlistVideos[index];
-                                  return ListTile(
-                                    leading: Image.network(
-                                        video.thumbnails.lowResUrl),
-                                    title: Text(
-                                      video.title,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Text(
-                                      video.author,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey),
-                                    ),
-                                    onTap: () {
-                                      _controller?.loadVideoById(
-                                        videoId: video.id.value,
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: playlistVideos.length,
+                              itemBuilder: (context, index) {
+                                final video = playlistVideos[index];
+                                return ListTile(
+                                  leading:
+                                      Image.network(video.thumbnails.lowResUrl),
+                                  title: Text(
+                                    video.title,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Text(
+                                    video.author,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
+                                  ),
+                                  onTap: () {
+                                    _controller?.loadVideoById(
+                                      videoId: video.id.value,
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ]
                         ],
                       ),
                       if (isFullscreen)
                         Positioned(
-                          bottom: 50,
+                          bottom: 60,
                           right: 10,
                           child: IconButton(
                               onPressed: _toggleFullscreen,
+                              tooltip: 'End Fullscreen',
                               icon: const Icon(
                                 Icons.fullscreen_exit_rounded,
                                 color: Colors.white,

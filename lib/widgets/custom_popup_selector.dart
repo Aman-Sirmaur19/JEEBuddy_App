@@ -29,6 +29,7 @@ class CustomPopupSelector extends StatelessWidget {
         ],
         PopupMenuButton<String>(
           onSelected: onSelected,
+          color: Theme.of(context).colorScheme.primaryContainer,
           constraints: const BoxConstraints(minWidth: double.infinity),
           itemBuilder: (context) => options.map((option) {
             final isSelected = (option == selectedValue);

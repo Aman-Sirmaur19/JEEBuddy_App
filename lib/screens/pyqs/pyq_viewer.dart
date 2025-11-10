@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
+import 'package:http/http.dart' as http;
 
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/internet_connectivity_button.dart';
@@ -19,6 +20,39 @@ class _PYQViewerState extends State<PYQViewer> {
   Future<String>? _pdfPathFuture;
   PDFViewController? _pdfViewController;
   int? _totalPages;
+  double? _fileSizeInMB;
+
+  @override
+  void initState() {
+    super.initState();
+    _pdfPathFuture = _initialisePdf();
+    _fetchFileSize();
+  }
+
+  Future<String> _initialisePdf() async {
+    try {
+      return 'https://drive.google.com/uc?export=download&id=${widget.pdfUrl.trim()}';
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  Future<void> _fetchFileSize() async {
+    try {
+      final url =
+          'https://drive.google.com/uc?export=download&id=${widget.pdfUrl.trim()}';
+      final response = await http.head(Uri.parse(url));
+      if (response.statusCode == 200 &&
+          response.headers.containsKey('content-length')) {
+        final bytes = int.parse(response.headers['content-length']!);
+        setState(() {
+          _fileSizeInMB = bytes / (1024 * 1024); // convert to MB
+        });
+      }
+    } catch (e) {
+      debugPrint("Failed to fetch file size: $e");
+    }
+  }
 
   void _goToPageDialog() {
     final TextEditingController pageController = TextEditingController();
@@ -88,20 +122,6 @@ class _PYQViewerState extends State<PYQViewer> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _pdfPathFuture = _initialisePdf();
-  }
-
-  Future<String> _initialisePdf() async {
-    try {
-      return 'https://drive.google.com/uc?export=download&id=${widget.pdfUrl.trim()}';
-    } catch (e) {
-      return e.toString();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -122,6 +142,7 @@ class _PYQViewerState extends State<PYQViewer> {
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('Invalid PDF path.'));
             }
+
             final path = snapshot.data!;
             return PDF(
               enableSwipe: true,
@@ -136,20 +157,52 @@ class _PYQViewerState extends State<PYQViewer> {
               },
             ).cachedFromUrl(
               path,
-              placeholder: (progress) => Center(
-                  child: Text(
-                '$progress %\nLoading',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              )),
-              errorWidget: (error) => InternetConnectivityButton(
-                onPressed: () => setState(() {
-                  _pdfPathFuture = _initialisePdf();
-                }),
-              ),
+              placeholder: (progress) {
+                return Center(
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        TextSpan(text: "$progress %\nLoading...\n"),
+                        if (_fileSizeInMB != null)
+                          TextSpan(
+                            text:
+                                "Size: ${_fileSizeInMB!.toStringAsFixed(2)} MB",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              errorWidget: (error) {
+                if (error.toString().contains("400")) {
+                  return const Center(
+                    child: Text(
+                      "It will be uploaded soon...",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                }
+                return InternetConnectivityButton(
+                  onPressed: () => setState(() {
+                    _pdfPathFuture = _initialisePdf();
+                    _fetchFileSize();
+                  }),
+                );
+              },
             );
           },
         ),

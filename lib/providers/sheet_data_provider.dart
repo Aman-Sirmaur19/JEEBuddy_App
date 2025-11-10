@@ -5,60 +5,61 @@ import 'package:csv/csv.dart';
 import '../secrets.dart';
 
 class SheetDataProvider with ChangeNotifier {
-  List<List<dynamic>> _data = [];
-  bool _isLoaded = false;
-  bool _isLoading = false;
-  String? _error;
+  final Map<String, String> sheetUrls = {
+    "Notes": Secrets.notesUrl,
+    "Lectures": Secrets.lecturesUrl,
+    "PYQs": Secrets.pyqUrl,
+  };
 
-  List<List<dynamic>> get data => _data;
+  final Map<String, List<List<dynamic>>> _cache = {};
+  final Map<String, bool> _loading = {};
+  final Map<String, String?> _errors = {};
 
-  bool get isLoaded => _isLoaded;
+  Map<String, List<List<dynamic>>> get cache => _cache;
 
-  bool get isLoading => _isLoading;
+  bool isLoading(String sheet) => _loading[sheet] ?? false;
 
-  String? get error => _error;
+  String? error(String sheet) => _errors[sheet];
 
-  Future<void> loadData() async {
-    if (_isLoaded) return;
+  Future<List<List<dynamic>>?> loadSheet(String sheetName) async {
+    if (_cache.containsKey(sheetName)) {
+      return _cache[sheetName]; // already loaded
+    }
+    if (_loading[sheetName] == true) return null; // already in progress
 
-    _isLoading = true;
-    _error = null;
+    final url = sheetUrls[sheetName];
+    if (url == null) {
+      _errors[sheetName] = "Unknown sheet: $sheetName";
+      notifyListeners();
+      return null;
+    }
+
+    _loading[sheetName] = true;
+    _errors[sheetName] = null;
     notifyListeners();
 
     try {
-      final response = await http.get(Uri.parse(Secrets.csvUrl));
+      final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        _data = const CsvToListConverter(eol: '\n').convert(response.body);
-        _isLoaded = true;
+        final data = const CsvToListConverter(eol: '\n').convert(response.body);
+        _cache[sheetName] = data;
       } else {
-        _error = 'Failed to load sheet';
+        _errors[sheetName] =
+            'Failed to load $sheetName (HTTP ${response.statusCode})';
       }
-    } catch (e) {
-      _error = e.toString();
+    } catch (e, st) {
+      print('CSV parse error for $sheetName: $e\n$st');
+      _errors[sheetName] = e.toString();
+    } finally {
+      _loading[sheetName] = false;
+      notifyListeners();
     }
 
-    _isLoading = false;
-    notifyListeners();
+    return null;
   }
 
-  Future<void> refresh() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      final response = await http.get(Uri.parse(Secrets.csvUrl));
-      if (response.statusCode == 200) {
-        _data = const CsvToListConverter(eol: '\n').convert(response.body);
-        _isLoaded = true;
-      } else {
-        _error = 'Failed to reload sheet';
-      }
-    } catch (e) {
-      _error = e.toString();
-    }
-
-    _isLoading = false;
-    notifyListeners();
+  Future<List<List<dynamic>>?> refreshSheet(String sheetName) async {
+    _cache.remove(sheetName);
+    return loadSheet(sheetName);
   }
 }
